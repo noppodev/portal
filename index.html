@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>NoppoPortal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="のっぽの総合ポータルサイト">
+<link rel="stylesheet" href="css/style.css">
+<link rel="search" type="application/opensearchdescription+xml" title="NoppoPortal検索" href="/opensearch.xml" />
+</head>
+<style>
+	/*検索用CSS*/
+	.search-container {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 0 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      background-color: #fff;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #0078d7;
+      border: none;
+      border-radius: 20px;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    .suggestions, .history {
+      max-width: 600px;
+      margin: 10px auto;
+      padding: 0 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .suggestions button, .history button {
+      background-color: #e0e0e0;
+      border: none;
+      border-radius: 16px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .results {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .result-item {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .result-item h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: #0078d7;
+    }
+
+    .result-item p {
+      margin: 0;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .pagination {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .pagination button {
+      margin: 0 4px;
+      padding: 6px 12px;
+      font-size: 14px;
+      border: none;
+      border-radius: 16px;
+      background-color: #e0e0e0;
+      cursor: pointer;
+    }
+
+    .pagination button.active {
+      background-color: #0078d7;
+      color: white;
+    }
+  /*mobile*/
+    @media (max-width: 600px) {
+  .search-container {
+    flex-direction: column;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    border-radius: 12px;
+  }
+
+  button {
+    width: 100%;
+    border-radius: 12px;
+  }
+
+  .suggestions, .history {
+    flex-direction: column;
+  }
+
+  .result-item {
+    padding: 12px;
+  }
+
+  .pagination button {
+    padding: 8px;
+    font-size: 12px;
+  }
+}
+</style>
+<body>
+
+<div id="container">
+
+<header>
+<h1 id="logo"><a href="index.html"><img src="images/logo.png" alt="NoppoPortal"></a></h1>
+</header>
+
+<!--開閉メニュー-->
+<div id="menubar">
+
+<nav>
+<ul>
+<li><a href="index.html">ホーム<span>Home</span></a></li>
+<li><a href="">ドロップダウン<span>Drop Down</span></a>
+	<ul>
+	<li><a href="#">メニューメニューメニュー</a></li>
+	<li><a href="#">メニュー</a></li>
+	<li><a href="#">メニュー</a></li>
+	<li><a href="#">メニュー</a></li>
+	</ul>
+</li>
+<li><a href="#">メニュー<span>Menu</span></a></li>
+<li><a href="#">メニュー<span>Menu</span></a></li>
+</ul>
+</nav>
+
+
+</div>
+<!--/#menubar（開閉メニュー）-->
+
+<div id="contents">
+
+<main>
+
+<section>
+ <div class="search-container">
+    <input type="text" id="search-input" placeholder="調べたいことを入力してください">
+    <button onclick="search()">検索</button>
+  </div>
+  <div class="results" id="results"></div>
+
+  <div class="pagination" id="pagination"></div>
+  <div class="history" id="history"></div>
+
+</section>
+
+</main>
+
+</div>
+<!--/#contents-->
+
+<footer>
+<small>Copyright&copy; NoppoPortal All Rights Reserved.</small>
+</footer>
+
+<!--以下の行はテンプレートの著作。削除しないで下さい。-->
+<span class="pr"><a href="https://template-party.com/" target="_blank">《Web Design:Template-Party》</a></span>
+
+</div>
+<!--/#container-->
+
+<!--ページの上部へ戻るボタン-->
+<div class="pagetop"><a href="#"><i class="fas fa-angle-double-up"></i></a></div>
+
+<!--開閉ボタン（ハンバーガーアイコン）-->
+<div id="menubar_hdr">
+<span></span><span></span><span></span>
+</div>
+
+<!--jQueryの読み込み-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<!--パララックス（inview）-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/protonet-jquery.inview/1.1.2/jquery.inview.min.js"></script>
+
+<!--このテンプレート専用のスクリプト-->
+<script src="js/main.js"></script>
+<!--検索スクリプト-->
+ <script>
+    const API_KEY = 'AIzaSyCVSNV4-lXqThiYdn-iZQEgAA8g44BgCxM';
+    const CX = '2789f0998bd66410a';
+    const RESULTS_PER_PAGE = 10;
+    let currentQuery = '';
+    let currentPage = 1;
+
+    function setQuery(text) {
+      document.getElementById('search-input').value = text;
+      search();
+    }
+
+    function updateURL(query) {
+      const url = new URL(window.location);
+      url.searchParams.set('q', query);
+      window.history.replaceState({}, '', url);
+    }
+
+    function saveHistory(query) {
+      let history = JSON.parse(localStorage.getItem('searchHistory')) || [];
+      if (!history.includes(query)) {
+        history.unshift(query);
+        if (history.length > 10) history.pop();
+        localStorage.setItem('searchHistory', JSON.stringify(history));
+      }
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const container = document.getElementById('history');
+      container.innerHTML = '';
+      const history = JSON.parse(localStorage.getItem('searchHistory')) || [];
+      history.forEach(item => {
+        const btn = document.createElement('button');
+        btn.textContent = item;
+        btn.onclick = () => setQuery(item);
+        container.appendChild(btn);
+      });
+    }
+
+    async function search(page = 1) {
+      const query = document.getElementById('search-input').value.trim();
+      if (!query) return;
+
+      currentQuery = query;
+      currentPage = page;
+      saveHistory(query);
+      updateURL(query);
+
+      const startIndex = (page - 1) * RESULTS_PER_PAGE + 1;
+      const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&q=${encodeURIComponent(query)}&start=${startIndex}`;
+
+      const resultsContainer = document.getElementById('results');
+      const paginationContainer = document.getElementById('pagination');
+      resultsContainer.innerHTML = '';
+      paginationContainer.innerHTML = '';
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.items) {
+          data.items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'result-item';
+
+            const title = document.createElement('h3');
+            title.textContent = item.title;
+
+            const link = document.createElement('a');
+            link.href = item.link;
+            link.target = '_blank';
+            link.appendChild(title);
+
+            const snippet = document.createElement('p');
+            snippet.textContent = item.snippet;
+
+            div.appendChild(link);
+            div.appendChild(snippet);
+            resultsContainer.appendChild(div);
+          });
+
+          // ページネーション（最大5ページまで表示）
+          const totalResults = parseInt(data.searchInformation.totalResults);
+          const totalPages = Math.min(Math.ceil(totalResults / RESULTS_PER_PAGE), 5);
+
+          for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            if (i === currentPage) btn.classList.add('active');
+            btn.onclick = () => search(i);
+            paginationContainer.appendChild(btn);
+          }
+        } else {
+          resultsContainer.innerHTML = '<p>結果が見つかりませんでした。</p>';
+        }
+      } catch (error) {
+        resultsContainer.innerHTML = '<p>検索中にエラーが発生しました。</p>';
+        console.error(error);
+      }
+    }
+
+    function getQueryFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('q') || '';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const q = getQueryFromURL();
+      if (q) {
+        document.getElementById('search-input').value = q;
+        search();
+      }
+      renderHistory();
+    });
+
+    if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('Service Worker registered', reg))
+      .catch(err => console.error('Service Worker failed', err));
+  });
+}
+  </script>
+
+</body>
+</html>

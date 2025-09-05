@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>NoppoPortal検索</ShortName>
+  <Description>のっぽの総合ポータルサイト内検索</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Url type="text/html" method="get" template="https://noppoportal.com/index.html?q={searchTerms}"/>
+  <Image height="16" width="16" type="image/x-icon">https://noppoportal.com/favicon.ico</Image>
+</OpenSearchDescription>
