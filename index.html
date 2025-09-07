@@ -105,6 +105,18 @@
       background-color: #0078d7;
       color: white;
     }
+	.tab-btn {
+  background-color: #e0e0e0;
+  border: none;
+  border-radius: 16px;
+  padding: 8px 20px;
+  font-size: 15px;
+  cursor: pointer;
+}
+.tab-btn.active {
+  background-color: #0078d7;
+  color: white;
+}
   /*mobile*/
     @media (max-width: 600px) {
   .search-container {
@@ -175,11 +187,11 @@
     <input type="text" id="search-input" placeholder="調べたいことを入力してください">
     <button onclick="search()">検索</button>
   </div>
+  <div id="search-tabs"></div>
   <div class="results" id="results"></div>
 
   <div class="pagination" id="pagination"></div>
   <div class="history" id="history"></div>
-
 </section>
 
 </main>
@@ -220,6 +232,36 @@
     const RESULTS_PER_PAGE = 10;
     let currentQuery = '';
     let currentPage = 1;
+    let currentTab = 'web';
+    const TABS = [
+      { key: 'web', label: 'ウェブ', api: '' },
+      { key: 'image', label: '画像', api: '&searchType=image' },
+      { key: 'video', label: '動画', api: '&siteSearch=youtube.com' },
+      { key: 'map', label: '地図', api: '', isMap: true },
+      { key: 'news', label: 'ニュース', api: '&siteSearch=news.google.com' }
+    ];
+
+    function renderTabs() {
+      const tabsContainer = document.getElementById('search-tabs');
+      tabsContainer.innerHTML = '';
+      TABS.forEach(tab => {
+        const btn = document.createElement('button');
+        btn.className = 'tab-btn' + (currentTab === tab.key ? ' active' : '');
+        btn.textContent = tab.label;
+        btn.onclick = () => setTab(tab.key);
+        tabsContainer.appendChild(btn);
+      });
+      tabsContainer.style.maxWidth = '600px';
+      tabsContainer.style.margin = '0 auto 10px';
+      tabsContainer.style.display = 'flex';
+      tabsContainer.style.gap = '8px';
+      tabsContainer.style.justifyContent = 'center';
+    }
+
+    function setTab(tab) {
+      currentTab = tab;
+      search();
+    }
 
     function setQuery(text) {
       document.getElementById('search-input').value = text;
@@ -229,6 +271,7 @@
     function updateURL(query) {
       const url = new URL(window.location);
       url.searchParams.set('q', query);
+      url.searchParams.set('t', currentTab);
       window.history.replaceState({}, '', url);
     }
 
@@ -252,6 +295,18 @@
         btn.onclick = () => setQuery(item);
         container.appendChild(btn);
       });
+      if (history.length > 0) {
+        const clearBtn = document.createElement('button');
+        clearBtn.textContent = '履歴クリア';
+        clearBtn.style.background = '#ffcccc';
+        clearBtn.style.color = '#333';
+        clearBtn.style.marginLeft = 'auto';
+        clearBtn.onclick = () => {
+          localStorage.removeItem('searchHistory');
+          renderHistory();
+        };
+        container.appendChild(clearBtn);
+      }
     }
 
     async function search(page = 1) {
@@ -263,38 +318,105 @@
       saveHistory(query);
       updateURL(query);
 
+      renderTabs();
+      document.getElementById('search-tabs').style.display = 'flex';
+
       const startIndex = (page - 1) * RESULTS_PER_PAGE + 1;
-      const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&q=${encodeURIComponent(query)}&start=${startIndex}`;
+      const tabObj = TABS.find(t => t.key === currentTab) || TABS[0];
+      let url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&q=${encodeURIComponent(query)}&start=${startIndex}${tabObj.api}`;
 
       const resultsContainer = document.getElementById('results');
       const paginationContainer = document.getElementById('pagination');
       resultsContainer.innerHTML = '';
       paginationContainer.innerHTML = '';
 
+      if (tabObj.isMap) {
+        // 地図タブはGoogle Maps検索へのリンク
+        const mapUrl = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
+        const mapDiv = document.createElement('div');
+        mapDiv.innerHTML = `<a href="${mapUrl}" target="_blank" style="font-size:18px;color:#0078d7;">Googleマップで「${query}」を検索</a>`;
+        resultsContainer.appendChild(mapDiv);
+        return;
+      }
+
       try {
         const response = await fetch(url);
         const data = await response.json();
 
         if (data.items) {
-          data.items.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'result-item';
-
-            const title = document.createElement('h3');
-            title.textContent = item.title;
-
-            const link = document.createElement('a');
-            link.href = item.link;
-            link.target = '_blank';
-            link.appendChild(title);
-
-            const snippet = document.createElement('p');
-            snippet.textContent = item.snippet;
-
-            div.appendChild(link);
-            div.appendChild(snippet);
-            resultsContainer.appendChild(div);
-          });
+          if (currentTab === 'web' || currentTab === 'news') {
+            data.items.forEach(item => {
+              const div = document.createElement('div');
+              div.className = 'result-item';
+              const title = document.createElement('h3');
+              title.textContent = item.title;
+              const link = document.createElement('a');
+              link.href = item.link;
+              link.target = '_blank';
+              link.appendChild(title);
+              const snippet = document.createElement('p');
+              snippet.textContent = item.snippet;
+              div.appendChild(link);
+              div.appendChild(snippet);
+              resultsContainer.appendChild(div);
+            });
+          } else if (currentTab === 'image') {
+            const imgGrid = document.createElement('div');
+            imgGrid.style.display = 'grid';
+            imgGrid.style.gridTemplateColumns = 'repeat(auto-fit,minmax(120px,1fr))';
+            imgGrid.style.gap = '12px';
+            data.items.forEach(item => {
+              const imgDiv = document.createElement('div');
+              imgDiv.style.textAlign = 'center';
+              const a = document.createElement('a');
+              a.href = item.link;
+              a.target = '_blank';
+              const img = document.createElement('img');
+              img.src = item.image.thumbnailLink || item.link;
+              img.alt = item.title;
+              img.style.maxWidth = '100%';
+              img.style.borderRadius = '8px';
+              img.style.boxShadow = '0 1px 4px rgba(0,0,0,0.08)';
+              a.appendChild(img);
+              imgDiv.appendChild(a);
+              imgDiv.appendChild(document.createElement('br'));
+              const cap = document.createElement('span');
+              cap.textContent = item.title;
+              cap.style.fontSize = '12px';
+              imgDiv.appendChild(cap);
+              imgGrid.appendChild(imgDiv);
+            });
+            resultsContainer.appendChild(imgGrid);
+          } else if (currentTab === 'video') {
+            // 動画タブはYouTube動画リンクをサムネイル付きで表示
+            const vidGrid = document.createElement('div');
+            vidGrid.style.display = 'grid';
+            vidGrid.style.gridTemplateColumns = 'repeat(auto-fit,minmax(180px,1fr))';
+            vidGrid.style.gap = '12px';
+            data.items.forEach(item => {
+              const vidDiv = document.createElement('div');
+              vidDiv.style.textAlign = 'center';
+              const a = document.createElement('a');
+              a.href = item.link;
+              a.target = '_blank';
+              const img = document.createElement('img');
+              img.src = item.pagemap?.cse_thumbnail?.[0]?.src || item.pagemap?.thumbnail?.[0]?.src || '';
+              img.alt = item.title;
+              img.style.maxWidth = '100%';
+              img.style.borderRadius = '8px';
+              img.style.boxShadow = '0 1px 4px rgba(0,0,0,0.08)';
+              a.appendChild(img);
+              vidDiv.appendChild(a);
+              vidDiv.appendChild(document.createElement('br'));
+              const cap = document.createElement('span');
+              cap.textContent = item.title;
+              cap.style.fontSize = '12px';
+              vidDiv.appendChild(cap);
+              vidGrid.appendChild(vidDiv);
+            });
+            resultsContainer.appendChild(vidGrid);
+          }
+          // 他のタブの表示処理もここに追加可能
 
           // ページネーション（最大5ページまで表示）
           const totalResults = parseInt(data.searchInformation.totalResults);
@@ -320,12 +442,26 @@
       const params = new URLSearchParams(window.location.search);
       return params.get('q') || '';
     }
+    function getTabFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('t') || 'web';
+    }
 
     window.addEventListener('DOMContentLoaded', () => {
       const q = getQueryFromURL();
+      const t = getTabFromURL();
+      currentTab = t;
+      const searchInput = document.getElementById('search-input');
+      searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          search();
+        }
+      });
       if (q) {
-        document.getElementById('search-input').value = q;
+        searchInput.value = q;
         search();
+      } else {
+        document.getElementById('search-tabs').style.display = 'none';
       }
       renderHistory();
     });
