@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>NoppoPortal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="のっぽの総合ポータルサイト">
+<link rel="stylesheet" href="css/style.css">
+<link rel="search" type="application/opensearchdescription+xml" title="NoppoPortal検索" href="/opensearch.xml" />
+</head>
+<style>
+  /*ニュース*/
+  /*お知らせブロック
+---------------------------------------------------------------------------*/
+.news4-parts {
+	margin-left: 1rem;	/*左に１文字分のスペース*/
+	margin-right: 1rem;	/*右に１文字分のスペース*/
+	background: rgba(0,0,0,0.02);	/*背景色。0,0,0は黒のことで0.02は色が2%出た状態。*/
+	border-radius: 30px;			/*角を丸くする指定。お好みで。*/
+	overflow: hidden;
+}
+
+/*奇数行目を背景色を少し濃くする。全体同じ色がよければここの数行は削除。*/
+.news4-parts dt:nth-of-type(odd),
+.news4-parts dd:nth-of-type(odd) {
+	background: rgba(0,0,0,0.05);
+}
+
+/*日付(dt)設定*/
+.news4-parts dt {
+	padding: 1rem 1rem 0;	/*dt内の余白。上、左右、下への順番。*/
+}
+
+/*記事(dd)設定*/
+.news4-parts dd {
+	padding: 1rem;	/*dd内の余白*/
+}
+
+/*ブロック内のspan。日付の横のアイコン的な部分の共通設定*/
+.news4-parts dt span {
+	display: inline-block;
+	text-align: center;
+	line-height: 1.8;		/*行間（アイコンの高さ）*/
+	border-radius: 3px;		/*角を丸くする指定*/
+	padding: 0 1rem;		/*上下、左右へのブロック内の余白*/
+	width: 8rem;			/*幅。６文字分。*/
+	transform: scale(0.8);	/*80%のサイズに縮小*/
+	background: #fff;		/*背景色*/
+	color:#777;				/*文字色*/
+	border: 1px solid #777;
+}
+
+/*icon-bg1-parts。サンプルでは「重要」と書いてあるマーク*/
+.news4-parts .icon-bg1-parts {
+	border-color: transparent;	/*上の枠線の色を引き継ぎたくないので透明にし、ここの背景色をそのまま出す。*/
+	background: #cd0000;	/*背景色*/
+	color: #fff;			/*文字色*/
+}
+
+/*icon-bg2-parts。サンプルでは「サービス」と書いてあるマーク*/
+.news4-parts .icon-bg2-parts {
+	border-color: transparent;	/*上の枠線の色を引き継ぎたくないので透明にし、ここの背景色をそのまま出す。*/
+	background: #006acd;	/*背景色*/
+	color: #fff;			/*文字色*/
+}
+
+	/*画面幅700px以上の追加指定*/
+	@media screen and (min-width:700px) {
+
+	/*ブロック全体*/
+	.news4-parts {
+		display: grid;
+		grid-template-columns: auto 1fr;	/*横並びの指定。日付とアイコン部分の幅は自動で、内容が入るブロックは残り幅一杯とる。*/
+	}
+
+	/*日付(dt)設定*/
+	.news4-parts dt {
+		padding: 1rem 0 1rem 2rem;	/*dt内の余白。上、右、下、左への順番。*/
+	}
+
+	/*記事(dd)設定*/
+	.news4-parts dd {
+		padding: 1rem 2rem 1rem 0;	/*dd内の余白。上、右、下、左への順番。*/
+	}
+
+	}/*追加指定ここまで*/
+
+</style>
+<body>
+
+<div id="container">
+
+<header>
+<h1 id="logo"><a href="index.html"><img src="images/logo.png" alt="NoppoPortal"></a></h1>
+</header>
+
+<!--開閉メニュー-->
+<div id="menubar">
+
+<nav>
+<ul>
+<li><a href="index.html">ホーム<span>Home</span></a></li>
+<li><a href="">ドロップダウン<span>Drop Down</span></a>
+
+</li>
+<li><a href="news.html">お知らせ<span>News</span></a></li>
+<li><a href="#">メニュー<span>Menu</span></a></li>
+</ul>	
+<ul>
+<li><a href="#">メニューメニューメニュー</a></li>
+<li><a href="#">メニュー</a></li>
+<li><a href="#">メニュー</a></li>
+<li><a href="#">メニュー</a></li>
+</ul>
+</nav>
+
+
+</div>
+<!--/#menubar（開閉メニュー）-->
+<section>
+
+<dl class="news4-parts">
+<dt>2025/09/07<span>その他</span></dt>
+<dd>お知らせタブを追加しました。</dd>
+<dt>2025/09/05<span>サービス</span></dt>
+<dd>のっぽ検索のサービスを開始しました。</dd>
+<dt>2025/09/05<span>サービス</span></dt>
+<dd>NoppoPortalを開設しました。</dd>
+</dl>
+
+</section>
+
+
+<!--/#contents-->
+
+<footer>
+<small>Copyright&copy; NoppoPortal All Rights Reserved.</small>
+</footer>
+
+<!--以下の行はテンプレートの著作。削除しないで下さい。-->
+<span class="pr"><a href="https://template-party.com/" target="_blank">《Web Design:Template-Party》</a></span>
+
+</div>
+<!--/#container-->
+
+<!--ページの上部へ戻るボタン-->
+<div class="pagetop"><a href="#"><i class="fas fa-angle-double-up"></i></a></div>
+
+<!--開閉ボタン（ハンバーガーアイコン）-->
+<div id="menubar_hdr">
+<span></span><span></span><span></span>
+</div>
+
+<!--jQueryの読み込み-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<!--パララックス（inview）-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/protonet-jquery.inview/1.1.2/jquery.inview.min.js"></script>
+
+<!--このテンプレート専用のスクリプト-->
+<script src="js/main.js"></script>
+
+</body>
+</html>
